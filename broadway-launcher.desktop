@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Broadway GDK Launcher
+Comment=Launch a GTK+ application to the Broadway display server
+Icon=window-new
+Exec=broadway-launch
+NoDisplay=false
+Categories=Development;
+StartupNotify=true
+Terminal=false

@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Broadway GDK Daemon
+Comment=Start HTML5 backend for displaying GTK+ applications within a web browser
+Icon=window-new
+Exec=broadway-daemon
+NoDisplay=false
+Categories=Development;
+StartupNotify=true
+Terminal=true

@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Broadway GDK Browser
+Comment=Launch web browser to view GTK+ windows managed by Broadway
+Icon=window-new
+Exec=broadway-browser
+NoDisplay=false
+Categories=Development;
+StartupNotify=true
+Terminal=false

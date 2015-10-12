@@ -1,0 +1,9 @@
+#!/bin/bash
+#
+# Start display server for the Broadway GDK backend
+
+
+BROADWAY_DISPLAY=':1'
+BROADWAY_PORT='8081'
+
+broadwayd --port "$BROADWAY_PORT" "$BROADWAY_DISPLAY"

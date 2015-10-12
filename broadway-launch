@@ -1,0 +1,67 @@
+#!/bin/bash
+#
+# Launch a GTK+ application to the Broadway display server
+
+
+# determine display at runtime
+DYNAMIC=1
+
+# default value (this will be updated at runtime if DYNAMIC is enabled)
+BROADWAY_DISPLAY=':1'
+
+if ! pgrep -u "$USER" -x broadwayd &>/dev/null; then
+    echo "ERROR: broadwayd is not running (try running 'broadway-daemon')" >&2
+fi
+
+# request args via GUI if necessary
+if (( $# == 0 )); then
+    output=$(zenity --cancel-label=Close --entry --ok-label=Launch --text='Command:' --title=broadway-launch 2>/dev/null)
+    eval set -- "$output"
+fi
+
+# exit if no args
+(( $# == 0 )) && exit 1
+
+# save original arguments
+args=("$@")
+
+if (( DYNAMIC == 1 )); then
+
+    pid=$(pgrep -u "$USER" -x broadwayd 2>/dev/null)
+    cmd=$(ps -o cmd= "$pid" 2>/dev/null)
+    eval set -- "$cmd"
+
+    shift
+    while [[ -n $1 ]]; do
+        case $1 in
+            --address)
+                shift
+                BROADWAY_ADDRESS=$1
+                shift
+                ;;
+            --port)
+                shift
+                BROADWAY_PORT=$1
+                shift
+                ;;
+            --unixaddress)
+                shift
+                BROADWAY_UNIXADDRESS=$1
+                shift
+                ;;
+            --)
+                shift
+                ;;
+            --*)
+                shift 2
+                ;;
+            *)
+                BROADWAY_DISPLAY=$1
+                shift
+                ;;
+        esac
+    done
+
+fi
+
+BROADWAY_DISPLAY="$BROADWAY_DISPLAY" GDK_BACKEND=broadway "${args[@]}"

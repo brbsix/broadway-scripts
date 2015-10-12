@@ -1,0 +1,56 @@
+#!/bin/bash
+#
+# Launch web browser to view GTK+ windows managed by Broadway
+
+
+# determine address and port at runtime
+DYNAMIC=1
+
+# default values (these will be updated at runtime if DYNAMIC is enabled)
+BROADWAY_ADDRESS='http://127.0.0.1'
+BROADWAY_PORT='8081'
+
+if ! pgrep -u "$USER" -x broadwayd &>/dev/null; then
+    echo "ERROR: broadwayd is not running (try running 'broadway-daemon')" >&2
+fi
+
+if (( DYNAMIC == 1 )); then
+
+    pid=$(pgrep -u "$USER" -x broadwayd 2>/dev/null)
+    cmd=$(ps -o cmd= "$pid" 2>/dev/null)
+    eval set -- "$cmd"
+
+    shift
+    while [[ -n $1 ]]; do
+        case $1 in
+            --address)
+                shift
+                BROADWAY_ADDRESS=$1
+                shift
+                ;;
+            --port)
+                shift
+                BROADWAY_PORT=$1
+                shift
+                ;;
+            --unixaddress)
+                shift
+                BROADWAY_UNIXADDRESS=$1
+                shift
+                ;;
+            --)
+                shift
+                ;;
+            --*)
+                shift 2
+                ;;
+            *)
+                BROADWAY_DISPLAY=$1
+                shift
+                ;;
+        esac
+    done
+
+fi
+
+google-chrome --kiosk "$BROADWAY_ADDRESS:$BROADWAY_PORT"
