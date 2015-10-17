@@ -3,14 +3,60 @@
 # Launch a GTK+ application to the Broadway display server
 
 
+error(){
+    # detect TTY and respond appropriately
+    if [[ -t 0 ]]; then
+        echo "ERROR: $*" >&2
+    else
+        zenity --error --text="$*" --title=broadway-launch &>/dev/null
+    fi
+}
+
+
+have(){
+    hash "$1" &>/dev/null
+}
+
+
+is_daemon_running(){
+    pgrep -u "$USER" -x broadwayd &>/dev/null
+}
+
+
 # determine display at runtime
 DYNAMIC=1
 
 # default value (this will be updated at runtime if DYNAMIC is enabled)
 BROADWAY_DISPLAY=':1'
 
-if ! pgrep -u "$USER" -x broadwayd &>/dev/null; then
-    echo "ERROR: broadwayd is not running (try running 'broadway-daemon')" >&2
+# check whether broadwayd is running and launch it if necessary and possible
+if ! is_daemon_running; then
+
+    if have broadway-daemon; then
+
+        if [[ -t 0 ]] || ! have xfce4-terminal; then
+            # launch daemon in background or current terminal
+            broadway-daemon &
+        else
+            # launch daemon in new xfce4-terminal window
+            xfce4-terminal --command='broadway-daemon' --title='broadway-daemon' &
+        fi
+
+        # wait one second before continuing
+        sleep 1
+
+        # ensure daemon was successfully launched before continuing
+        if ! is_daemon_running; then
+            error "broadwayd is not running (failed to launch 'broadway-daemon')"
+            exit 1
+        fi
+
+    else
+        # exit because broadway-daemon is not installed
+        error "broadwayd is not running (consider installing and running 'broadway-daemon')"
+        exit 1
+    fi
+
 fi
 
 # request args via GUI if necessary
